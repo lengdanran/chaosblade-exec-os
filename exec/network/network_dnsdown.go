@@ -56,7 +56,7 @@ func NewDnsDownActionSpec() spec.ExpActionCommandSpec {
 			ActionFlags: []spec.ExpFlagSpec{
 				&spec.ExpFlag{
 					Name:                  "allow_domain",
-					Desc:                  "Domain names that resolve normally even when DNS is unavailable, with multiple domain names separated by English semicolons. For example: test1.com;test2.com",
+					Desc:                  "Domain names that resolve normally even when DNS is unavailable, with multiple domain names separated by ','. For example: test1.com,test2.com",
 					Required:              false,
 					RequiredWhenDestroyed: false,
 				},
@@ -64,7 +64,7 @@ func NewDnsDownActionSpec() spec.ExpActionCommandSpec {
 			ActionExecutor: &NetworkDnsDownExecutor{},
 			ActionExample: `
 # The domain name www.baidu.com is not accessible while test1.com and test2.com are accessible.
-blade create network dns_down --allow_domain test1.com;test2.com`,
+blade create network dns_down --allow_domain test1.com,test2.com`,
 			ActionPrograms:   []string{DnsDown},
 			ActionCategories: []string{category.SystemNetwork},
 		},
@@ -84,7 +84,7 @@ func (ns *NetworkDnsDownExecutor) Exec(uid string, ctx context.Context, model *s
 	if response, ok := ns.channel.IsAllCommandsAvailable(ctx, commands); !ok {
 		return response
 	}
-	allowDomains := strings.Split(model.ActionFlags["allow_domain"], `;`)
+	allowDomains := strings.Split(model.ActionFlags["allow_domain"], `,`)
 	if _, ok := spec.IsDestroy(ctx); ok {
 		return ns.stop(ctx, allowDomains)
 	}
